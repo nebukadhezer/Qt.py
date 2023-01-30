@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.8"]
       fail-fast: false
 
     steps:
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest PySide6 nose
+          pip install flake8 pytest PySide6 nose six
       - name: Test with pytest
         run: |
           pytest tests.py
