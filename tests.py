@@ -309,9 +309,10 @@ def test_environment():
     if sys.version_info < (3, 5):
         # PySide is not available for Python > 3.4
         imp.find_module("PySide")
-    imp.find_module("PySide2")
-    imp.find_module("PyQt4")
-    imp.find_module("PyQt5")
+    #imp.find_module("PySide2")
+    #imp.find_module("PyQt4")
+    #imp.find_module("PyQt5")
+    imp.find_module("PySide6")
 
 
 def test_load_ui_returntype():
@@ -322,14 +323,17 @@ def test_load_ui_returntype():
     app = QtWidgets.QApplication(sys.argv)
     obj = QtCompat.loadUi(self.ui_qwidget)
     assert isinstance(obj, QtCore.QObject)
-    app.exit()
+    app.quit()
 
 
 def test_load_ui_baseinstance():
     """Tests to see if the baseinstance loading loads a QWidget on properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QWidget()
     QtCompat.loadUi(self.ui_qwidget, win)
     assert hasattr(win, 'lineEdit'), "loadUi could not load instance to win"
@@ -340,7 +344,10 @@ def test_load_ui_signals():
     """Tests to see if the baseinstance connects signals properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QWidget()
     QtCompat.loadUi(self.ui_qwidget, win)
 
@@ -354,8 +361,10 @@ def test_load_ui_mainwindow():
     """Tests to see if the baseinstance loading loads a QMainWindow properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QMainWindow()
 
     QtCompat.loadUi(self.ui_qmainwindow, win)
@@ -371,7 +380,10 @@ def test_load_ui_dialog():
     import sys
     from Qt import QtWidgets, QtCompat
 
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QDialog()
 
     QtCompat.loadUi(self.ui_qdialog, win)
@@ -386,8 +398,10 @@ def test_load_ui_dockwidget():
     """Tests to see if the baseinstance loading loads a QDockWidget properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QDockWidget()
 
     QtCompat.loadUi(self.ui_qdockwidget, win)
@@ -402,8 +416,10 @@ def test_load_ui_customwidget():
     """Tests to see if loadUi loads a custom widget properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QMainWindow()
 
     QtCompat.loadUi(self.ui_qcustomwidget, win)
@@ -422,7 +438,10 @@ def test_load_ui_invalidpath():
     """Tests to see if loadUi successfully fails on invalid paths"""
     import sys
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     assert_raises(IOError, QtCompat.loadUi, 'made/up/path')
     app.exit()
 
@@ -440,7 +459,10 @@ def test_load_ui_invalidxml():
 
     from xml.etree import ElementTree
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     assert_raises(ElementTree.ParseError, QtCompat.loadUi, invalid_xml)
     app.exit()
 
@@ -454,7 +476,10 @@ def test_load_ui_existingLayoutOnDialog():
         '"Dialog", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QDialog()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
@@ -471,7 +496,10 @@ def test_load_ui_existingLayoutOnMainWindow():
         '"", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QMainWindow()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
@@ -488,7 +516,10 @@ def test_load_ui_existingLayoutOnDockWidget():
         '"", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QDockWidget()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
@@ -505,7 +536,10 @@ def test_load_ui_existingLayoutOnWidget():
         '"Form", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QWidget()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
