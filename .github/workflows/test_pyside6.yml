@@ -28,4 +28,4 @@ jobs:
           pip install flake8 pytest PySide6 nose
       - name: Test with pytest
         run: |
-          pytest
+          pytest tests.py
