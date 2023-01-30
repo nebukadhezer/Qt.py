@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest PySide6
+          pip install flake8 pytest PySide6 nose
       - name: Test with pytest
         run: |
           pytest
