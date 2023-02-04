@@ -305,14 +305,8 @@ def ignoreQtMessageHandler(msgs):
 
 def test_environment():
     """Tests require all bindings to be installed (except PySide on py3.5+)"""
-
-    if sys.version_info < (3, 5):
-        # PySide is not available for Python > 3.4
-        imp.find_module("PySide")
-    #imp.find_module("PySide2")
-    #imp.find_module("PyQt4")
-    #imp.find_module("PyQt5")
-    imp.find_module("PySide6")
+    mod = os.getenv("QT_PREFERRED_BINDING","PySide6")
+    imp.find_module(mod)
 
 
 def test_load_ui_returntype():
@@ -845,7 +839,10 @@ def test_qtcompat_base_class():
     import Qt
     from Qt import QtWidgets
     from Qt import QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     # suppress `local variable 'app' is assigned to but never used`
     app
     header = QtWidgets.QHeaderView(Qt.QtCore.Qt.Horizontal)
@@ -865,7 +862,8 @@ def test_qtcompat_base_class():
 def test_cli():
     """Qt.py is available from the command-line"""
     env = os.environ.copy()
-    env.pop("QT_VERBOSE")  # Do not include debug messages
+    if "QT_VERBOSE" in env:
+        env.pop("QT_VERBOSE")  # Do not include debug messages
 
     popen = subprocess.Popen(
         [sys.executable, "Qt.py", "--help"],
