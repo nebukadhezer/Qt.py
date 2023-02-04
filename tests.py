@@ -266,8 +266,10 @@ def setup():
 
 
 def teardown():
-    shutil.rmtree(self.tempdir)
-
+    try:
+        shutil.rmtree(self.tempdir)
+    except:
+        print("could not remove tempdata")
 
 def binding(binding):
     """Isolate test to a particular binding
@@ -305,13 +307,8 @@ def ignoreQtMessageHandler(msgs):
 
 def test_environment():
     """Tests require all bindings to be installed (except PySide on py3.5+)"""
-
-    if sys.version_info < (3, 5):
-        # PySide is not available for Python > 3.4
-        imp.find_module("PySide")
-    imp.find_module("PySide2")
-    imp.find_module("PyQt4")
-    imp.find_module("PyQt5")
+    mod = os.getenv("QT_PREFERRED_BINDING","PySide6")
+    imp.find_module(mod)
 
 
 def test_load_ui_returntype():
@@ -319,17 +316,23 @@ def test_load_ui_returntype():
 
     import sys
     from Qt import QtWidgets, QtCore, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     obj = QtCompat.loadUi(self.ui_qwidget)
     assert isinstance(obj, QtCore.QObject)
-    app.exit()
+    app.quit()
 
 
 def test_load_ui_baseinstance():
     """Tests to see if the baseinstance loading loads a QWidget on properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QWidget()
     QtCompat.loadUi(self.ui_qwidget, win)
     assert hasattr(win, 'lineEdit'), "loadUi could not load instance to win"
@@ -340,7 +343,10 @@ def test_load_ui_signals():
     """Tests to see if the baseinstance connects signals properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QWidget()
     QtCompat.loadUi(self.ui_qwidget, win)
 
@@ -354,8 +360,10 @@ def test_load_ui_mainwindow():
     """Tests to see if the baseinstance loading loads a QMainWindow properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QMainWindow()
 
     QtCompat.loadUi(self.ui_qmainwindow, win)
@@ -371,7 +379,10 @@ def test_load_ui_dialog():
     import sys
     from Qt import QtWidgets, QtCompat
 
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QDialog()
 
     QtCompat.loadUi(self.ui_qdialog, win)
@@ -386,8 +397,10 @@ def test_load_ui_dockwidget():
     """Tests to see if the baseinstance loading loads a QDockWidget properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QDockWidget()
 
     QtCompat.loadUi(self.ui_qdockwidget, win)
@@ -402,8 +415,10 @@ def test_load_ui_customwidget():
     """Tests to see if loadUi loads a custom widget properly"""
     import sys
     from Qt import QtWidgets, QtCompat
-
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     win = QtWidgets.QMainWindow()
 
     QtCompat.loadUi(self.ui_qcustomwidget, win)
@@ -422,7 +437,10 @@ def test_load_ui_invalidpath():
     """Tests to see if loadUi successfully fails on invalid paths"""
     import sys
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     assert_raises(IOError, QtCompat.loadUi, 'made/up/path')
     app.exit()
 
@@ -440,7 +458,10 @@ def test_load_ui_invalidxml():
 
     from xml.etree import ElementTree
     from Qt import QtWidgets, QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     assert_raises(ElementTree.ParseError, QtCompat.loadUi, invalid_xml)
     app.exit()
 
@@ -454,7 +475,10 @@ def test_load_ui_existingLayoutOnDialog():
         '"Dialog", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QDialog()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
@@ -471,7 +495,10 @@ def test_load_ui_existingLayoutOnMainWindow():
         '"", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QMainWindow()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
@@ -488,7 +515,10 @@ def test_load_ui_existingLayoutOnDockWidget():
         '"", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QDockWidget()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
@@ -505,7 +535,10 @@ def test_load_ui_existingLayoutOnWidget():
         '"Form", which already has a layout'
 
     with ignoreQtMessageHandler([msgs]):
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
         win = QtWidgets.QWidget()
         QtWidgets.QComboBox(win)
         QtWidgets.QHBoxLayout(win)
@@ -515,10 +548,12 @@ def test_load_ui_existingLayoutOnWidget():
 
 def test_preferred_none():
     """Preferring None shouldn't import anything"""
-
+    old = os.getenv("QT_PREFERRED_BINDING", "PySide6")
     os.environ["QT_PREFERRED_BINDING"] = "None"
     import Qt
     assert Qt.__name__ == "Qt", Qt
+    # needed for tests below
+    os.environ["QT_PREFERRED_BINDING"] = old
 
 
 def test_vendoring():
@@ -584,7 +619,7 @@ def test_vendoring():
     # Test invalid json data
     #
     env = os.environ.copy()
-    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["PyQt5","PyQt4"],}'
+    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["%s"],}' % os.getenv("QT_PREFERRED_BINDING", "PySide6")
 
     cmd = "import myproject.vendor.Qt;"
     cmd += "import Qt;"
@@ -603,6 +638,7 @@ def test_vendoring():
 
     if popen.returncode != 0:
         print(out)
+        print(err)
         msg = "An exception was raised"
         assert popen.returncode == 0, msg
 
@@ -629,7 +665,7 @@ def test_vendoring():
     env = os.environ.copy()
     env["QT_PREFERRED_BINDING_JSON"] = json.dumps(
         {
-            "Qt": ["PyQt5", "PyQt4"],
+            "Qt": [os.getenv("QT_PREFERRED_BINDING", "PySide6")],
             "default": ["None"]
         }
     )
@@ -642,7 +678,7 @@ def test_vendoring():
     ) == 0
 
     print("Testing QT_PREFERRED_BINDING_JSON and QT_PREFERRED_BINDING work..")
-    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["PyQt5","PyQt4"]}'
+    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["%s"]}' % os.getenv("QT_PREFERRED_BINDING", "PySide6")
     env["QT_PREFERRED_BINDING"] = "None"
     assert subprocess.call(
         [sys.executable, "-c", cmd],
@@ -811,7 +847,10 @@ def test_qtcompat_base_class():
     import Qt
     from Qt import QtWidgets
     from Qt import QtCompat
-    app = QtWidgets.QApplication(sys.argv)
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
     # suppress `local variable 'app' is assigned to but never used`
     app
     header = QtWidgets.QHeaderView(Qt.QtCore.Qt.Horizontal)
@@ -831,7 +870,8 @@ def test_qtcompat_base_class():
 def test_cli():
     """Qt.py is available from the command-line"""
     env = os.environ.copy()
-    env.pop("QT_VERBOSE")  # Do not include debug messages
+    if "QT_VERBOSE" in env:
+        env.pop("QT_VERBOSE")  # Do not include debug messages
 
     popen = subprocess.Popen(
         [sys.executable, "Qt.py", "--help"],
@@ -920,7 +960,10 @@ if sys.version_info < (3, 5):
         """
         from Qt import QtCompat, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             button = QtWidgets.QPushButton("Hello world")
@@ -957,7 +1000,10 @@ if sys.version_info < (3, 5):
         """
         from Qt import QtCompat, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             button = QtWidgets.QPushButton("Hello world")
@@ -1000,7 +1046,10 @@ if sys.version_info < (3, 5):
         """
         from Qt import QtCompat, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             class A(QtWidgets.QPushButton):
@@ -1053,7 +1102,10 @@ if sys.version_info < (3, 5):
         """.isValid and .delete work in all bindings"""
         from Qt import QtCompat, QtCore, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             obj = QtCore.QObject()
