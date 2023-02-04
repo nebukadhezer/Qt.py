@@ -266,8 +266,10 @@ def setup():
 
 
 def teardown():
-    shutil.rmtree(self.tempdir)
-
+    try:
+        shutil.rmtree(self.tempdir)
+    except:
+        print("could not remove tempdata")
 
 def binding(binding):
     """Isolate test to a particular binding
@@ -958,7 +960,10 @@ if sys.version_info < (3, 5):
         """
         from Qt import QtCompat, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             button = QtWidgets.QPushButton("Hello world")
@@ -995,7 +1000,10 @@ if sys.version_info < (3, 5):
         """
         from Qt import QtCompat, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             button = QtWidgets.QPushButton("Hello world")
@@ -1038,7 +1046,10 @@ if sys.version_info < (3, 5):
         """
         from Qt import QtCompat, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             class A(QtWidgets.QPushButton):
@@ -1091,7 +1102,10 @@ if sys.version_info < (3, 5):
         """.isValid and .delete work in all bindings"""
         from Qt import QtCompat, QtCore, QtWidgets
 
-        app = QtWidgets.QApplication(sys.argv)
+        if not QtWidgets.QApplication.instance():
+            app = QtWidgets.QApplication(sys.argv)
+        else:
+            app = QtWidgets.QApplication.instance()
 
         try:
             obj = QtCore.QObject()
