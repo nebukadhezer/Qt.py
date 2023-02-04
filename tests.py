@@ -546,10 +546,12 @@ def test_load_ui_existingLayoutOnWidget():
 
 def test_preferred_none():
     """Preferring None shouldn't import anything"""
-
+    old = os.getenv("QT_PREFERRED_BINDING", "PySide6")
     os.environ["QT_PREFERRED_BINDING"] = "None"
     import Qt
     assert Qt.__name__ == "Qt", Qt
+    # needed for tests below
+    os.environ["QT_PREFERRED_BINDING"] = old
 
 
 def test_vendoring():
@@ -615,7 +617,7 @@ def test_vendoring():
     # Test invalid json data
     #
     env = os.environ.copy()
-    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["PyQt5","PyQt4"],}'
+    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["%s"],}' % os.getenv("QT_PREFERRED_BINDING", "PySide6")
 
     cmd = "import myproject.vendor.Qt;"
     cmd += "import Qt;"
@@ -634,6 +636,7 @@ def test_vendoring():
 
     if popen.returncode != 0:
         print(out)
+        print(err)
         msg = "An exception was raised"
         assert popen.returncode == 0, msg
 
@@ -660,7 +663,7 @@ def test_vendoring():
     env = os.environ.copy()
     env["QT_PREFERRED_BINDING_JSON"] = json.dumps(
         {
-            "Qt": ["PyQt5", "PyQt4"],
+            "Qt": [os.getenv("QT_PREFERRED_BINDING", "PySide6")],
             "default": ["None"]
         }
     )
@@ -673,7 +676,7 @@ def test_vendoring():
     ) == 0
 
     print("Testing QT_PREFERRED_BINDING_JSON and QT_PREFERRED_BINDING work..")
-    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["PyQt5","PyQt4"]}'
+    env["QT_PREFERRED_BINDING_JSON"] = '{"Qt":["%s"]}' % os.getenv("QT_PREFERRED_BINDING", "PySide6")
     env["QT_PREFERRED_BINDING"] = "None"
     assert subprocess.call(
         [sys.executable, "-c", cmd],
